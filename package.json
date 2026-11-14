@@ -1,0 +1,35 @@
+{
+  "name": "adplat-admin-mcp",
+  "version": "1.0.0",
+  "description": "Comprehensive Model Context Protocol (MCP) Server for Adplat.space Admin - Full control over campaigns, SERP search clusters, support tickets, users, analytics, and billing.",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "adplat-admin-mcp": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "test": "node src/test-connection.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "adplat",
+    "dastyar",
+    "advertising",
+    "serp",
+    "admin-mcp",
+    "antigravity",
+    "claude-desktop",
+    "cursor"
+  ],
+  "author": "Hesam Mousavi (Hesvm)",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "axios": "^1.8.1",
+    "dotenv": "^16.4.7",
+    "form-data": "^4.0.2",
+    "zod": "^3.24.2"
+  }
+}
