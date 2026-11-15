@@ -6,7 +6,7 @@ import { AuthManager } from "./auth.js";
 
 const server = new McpServer({
   name: "adplat-admin-mcp",
-  version: "1.0.0"
+  version: "1.1.0"
 });
 
 // Helper to format response text
@@ -31,7 +31,7 @@ const errorResponse = (err) => ({
 });
 
 // ==========================================
-// 1. AUTHENTICATION & PROFILE
+// 1. AUTHENTICATION (3-TIER WATERFALL)
 // ==========================================
 server.tool(
   "adplat_auth_status",
@@ -43,12 +43,13 @@ server.tool(
       if (!token) {
         return jsonResponse({
           authenticated: false,
-          message: "No session token found. Please set ADPLAT_SESSION_TOKEN environment variable or use adplat_update_session."
+          message: "No active session found. You can log in using adplat_auth_send_otp or adplat_auth_login_password."
         });
       }
       const profile = await AdplatClient.getProfile();
       return jsonResponse({
         authenticated: true,
+        sessionTokenMasked: token.slice(0, 8) + '...' + token.slice(-6),
         profile: profile.profile || profile
       });
     } catch (err) {
@@ -58,10 +59,70 @@ server.tool(
 );
 
 server.tool(
-  "adplat_update_session",
-  "Update the Adplat Better-Auth session token without editing config files.",
+  "adplat_auth_send_otp",
+  "Send an SMS verification code (OTP) to your phone number for passwordless login without extracting cookies.",
   {
-    token: z.string().describe("The __Secure-better-auth.session_token cookie value from Firefox/Chrome")
+    phoneNumber: z.string().describe("Your mobile number (e.g. 09014182301 or +989014182301)")
+  },
+  async ({ phoneNumber }) => {
+    try {
+      const result = await AuthManager.sendOtp(phoneNumber);
+      return jsonResponse({
+        success: true,
+        message: `کد تأیید به شماره ${result.phoneNumber} ارسال شد. لطفاً کد دریافتی را با ابزار adplat_auth_verify_otp ارسال کنید.`,
+        data: result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_auth_verify_otp",
+  "Verify the SMS OTP code sent to your phone, automatically extract session token, and activate session.",
+  {
+    phoneNumber: z.string().describe("Mobile number that received the SMS OTP"),
+    code: z.string().describe("5 or 6 digit verification code from SMS")
+  },
+  async ({ phoneNumber, code }) => {
+    try {
+      const result = await AuthManager.verifyOtp(phoneNumber, code);
+      const profile = await AdplatClient.getProfile().catch(() => null);
+      return jsonResponse({
+        success: true,
+        message: "ورود موفقیت‌آمیز بود! نشست ذخیره شد و تمام ابزارهای ادمین ادپلت فعال شدند.",
+        sessionToken: result.token,
+        profile: profile?.profile || profile || result.user
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_auth_login_password",
+  "Log in using phone number and password directly.",
+  {
+    phoneNumber: z.string().describe("Mobile number"),
+    password: z.string().describe("Account password")
+  },
+  async ({ phoneNumber, password }) => {
+    try {
+      const result = await AuthManager.loginPassword(phoneNumber, password);
+      return jsonResponse(result);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_update_session",
+  "Manually update the Adplat Better-Auth session token (fallback option).",
+  {
+    token: z.string().describe("The __Secure-better-auth.session_token cookie value")
   },
   async ({ token }) => {
     try {
@@ -368,8 +429,126 @@ server.tool(
   }
 );
 
+server.tool(
+  "adplat_get_campaign_timeline",
+  "Get the historical lifecycle and event timeline of a campaign.",
+  {
+    campaignId: z.string().describe("UUID of the campaign")
+  },
+  async ({ campaignId }) => {
+    try {
+      const data = await AdplatClient.getCampaignTimeline(campaignId);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_list_creative_revisions",
+  "List creative revision requests and draft changes submitted for a campaign.",
+  {
+    campaignId: z.string().describe("UUID of the campaign")
+  },
+  async ({ campaignId }) => {
+    try {
+      const data = await AdplatClient.listCreativeRevisions(campaignId);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_apply_creative_revision",
+  "Approve and apply a pending creative revision to the live campaign.",
+  {
+    campaignId: z.string().describe("UUID of the campaign"),
+    revisionId: z.string().describe("UUID of the revision to apply")
+  },
+  async ({ campaignId, revisionId }) => {
+    try {
+      const data = await AdplatClient.applyCreativeRevision(campaignId, revisionId);
+      return jsonResponse({
+        success: true,
+        message: `Creative revision ${revisionId} applied to campaign ${campaignId}`,
+        result: data
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
 // ==========================================
-// 5. SEARCH CLUSTERS (SERP)
+// 5. AD PLACES, INVENTORY & TARGETING
+// ==========================================
+server.tool(
+  "adplat_list_ad_places",
+  "List all 13 ad placement slots in Dastyar (Extension sleeve, mobile, calendar event, quick icon, etc.) with price and 30-day performance stats.",
+  {
+    campaignType: z.enum(["advanced", "search"]).optional().default("advanced").describe("Campaign type")
+  },
+  async ({ campaignType }) => {
+    try {
+      const data = await AdplatClient.listAdPlaces(campaignType);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_ad_place_availability",
+  "Check live day-by-day slot availability and booked vs vacant capacity for any ad place in a date range.",
+  {
+    adPlaceId: z.string().describe("UUID of the ad place"),
+    from: z.string().describe("Start date (YYYY-MM-DD)"),
+    to: z.string().describe("End date (YYYY-MM-DD)")
+  },
+  async ({ adPlaceId, from, to }) => {
+    try {
+      const data = await AdplatClient.getAdPlaceAvailability(adPlaceId, from, to);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_targeting_options",
+  "Get all targeting options: categories, topics, cities, and careers for audience targeting.",
+  {},
+  async () => {
+    try {
+      const data = await AdplatClient.getTargetingOptions();
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_search_inventory",
+  "Get inventory capacity and cluster availability for search campaigns.",
+  {},
+  async () => {
+    try {
+      const data = await AdplatClient.getSearchInventory();
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+// ==========================================
+// 6. SEARCH CLUSTERS (SERP)
 // ==========================================
 server.tool(
   "adplat_list_search_clusters",
@@ -489,8 +668,25 @@ server.tool(
   }
 );
 
+server.tool(
+  "adplat_get_external_search_clusters",
+  "Discover and query external search clusters sorted by volume.",
+  {
+    source: z.string().optional().default("all").describe("Source filter (all, dastyar, google)"),
+    sort: z.string().optional().default("volume").describe("Sort order (volume, name)")
+  },
+  async ({ source, sort }) => {
+    try {
+      const data = await AdplatClient.getExternalSearchClusters({ source, sort });
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
 // ==========================================
-// 6. USERS & WALLETS
+// 7. USERS & WALLETS
 // ==========================================
 server.tool(
   "adplat_list_users",
@@ -542,7 +738,7 @@ server.tool(
 );
 
 // ==========================================
-// 7. PAYMENTS & TRANSACTIONS
+// 8. PAYMENTS & TRANSACTIONS
 // ==========================================
 server.tool(
   "adplat_list_payments",
@@ -590,7 +786,7 @@ server.tool(
 );
 
 // ==========================================
-// 8. INDUSTRIES
+// 9. INDUSTRIES
 // ==========================================
 server.tool(
   "adplat_list_industries",
@@ -607,7 +803,45 @@ server.tool(
 );
 
 // ==========================================
-// 9. MEDIA & ASSET UPLOADER
+// 10. NOTIFICATIONS
+// ==========================================
+server.tool(
+  "adplat_list_notifications",
+  "List recent admin notifications and unread alert count.",
+  {
+    limit: z.number().optional().default(10).describe("Max notifications to retrieve")
+  },
+  async ({ limit }) => {
+    try {
+      const data = await AdplatClient.listNotifications(limit);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_mark_notification_read",
+  "Mark a notification as read.",
+  {
+    notificationId: z.string().describe("UUID of the notification")
+  },
+  async ({ notificationId }) => {
+    try {
+      const data = await AdplatClient.markNotificationRead(notificationId);
+      return jsonResponse({
+        success: true,
+        result: data
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+// ==========================================
+// 11. MEDIA & ASSET UPLOADER
 // ==========================================
 server.tool(
   "adplat_upload_image",

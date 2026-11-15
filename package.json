@@ -1,7 +1,7 @@
 {
   "name": "adplat-admin-mcp",
-  "version": "1.0.0",
-  "description": "Comprehensive Model Context Protocol (MCP) Server for Adplat.space Admin - Full control over campaigns, SERP search clusters, support tickets, users, analytics, and billing.",
+  "version": "1.1.0",
+  "description": "Comprehensive Model Context Protocol (MCP) Server for Adplat.space Admin with 3-tier passwordless OTP auth, full control over campaigns, SERP search clusters, support tickets, users, analytics, and inventory.",
   "type": "module",
   "main": "src/index.js",
   "bin": {
@@ -9,7 +9,10 @@
   },
   "scripts": {
     "start": "node bin/cli.js",
-    "test": "node src/test-connection.js"
+    "login": "node bin/cli.js login",
+    "status": "node bin/cli.js status",
+    "test": "node src/test-connection.js",
+    "audit": "node scripts/audit-tools.js"
   },
   "keywords": [
     "mcp",

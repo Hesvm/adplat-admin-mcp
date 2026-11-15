@@ -6,7 +6,7 @@ import { AuthManager } from './auth.js';
 const BASE_URL = process.env.ADPLAT_BASE_URL || 'https://adplat.space';
 
 export class AdplatClient {
-  static getAxios() {
+  static getAxios(customTimeout = 45000) {
     const cookie = AuthManager.getCookieHeader();
     return axios.create({
       baseURL: BASE_URL,
@@ -16,12 +16,12 @@ export class AdplatClient {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      timeout: 30000
+      timeout: customTimeout
     });
   }
 
-  static async request(method, path, data = null, params = null) {
-    const client = this.getAxios();
+  static async request(method, path, data = null, params = null, timeout = 45000) {
+    const client = this.getAxios(timeout);
     try {
       const response = await client({
         method,
@@ -36,7 +36,7 @@ export class AdplatClient {
         const errData = error.response.data;
         const msg = errData?.error || errData?.message || JSON.stringify(errData) || error.message;
         if (status === 401) {
-          throw new Error(`Authentication Error (401): Session token is missing or expired. Use adplat_update_session to set a valid token. Details: ${msg}`);
+          throw new Error(`Authentication Error (401): Session token is missing or expired. Use adplat_auth_send_otp or adplat_update_session. Details: ${msg}`);
         }
         if (status === 403) {
           throw new Error(`Permission Denied (403): ${msg}`);
@@ -53,7 +53,14 @@ export class AdplatClient {
   }
 
   static async getAnalytics(params = {}) {
-    return this.request('GET', '/api/admin/analytics', null, params);
+    // Default to last 30 days if no date filter provided to avoid DB aggregate timeout
+    const query = { ...params };
+    if (!query.startDate) {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      query.startDate = d.toISOString().split('T')[0];
+    }
+    return this.request('GET', '/api/admin/analytics', null, query, 60000);
   }
 
   static async getUnansweredTicketsSummary() {
@@ -130,6 +137,48 @@ export class AdplatClient {
 
   static async deleteCampaign(campaignId) {
     return this.request('DELETE', `/api/admin/campaigns/${campaignId}`);
+  }
+
+  static async getCampaignTimeline(campaignId) {
+    return this.request('GET', `/api/admin/campaigns/${campaignId}/timeline`);
+  }
+
+  static async listCreativeRevisions(campaignId) {
+    return this.request('GET', `/api/admin/campaigns/${campaignId}/creative-revisions`);
+  }
+
+  static async applyCreativeRevision(campaignId, revisionId) {
+    return this.request('POST', `/api/admin/campaigns/${campaignId}/creative-revisions/${revisionId}/apply`);
+  }
+
+  static async retryCreativeShortLinks(campaignId, fieldKey) {
+    return this.request('POST', `/api/campaigns/${campaignId}/creative/short-links/retry`, { fieldKey });
+  }
+
+  // --- Ad Places & Availability & Inventory ---
+  static async listAdPlaces(campaignType = 'advanced') {
+    return this.request('GET', '/api/ad-places', null, { campaignType });
+  }
+
+  static async getAdPlaceAvailability(adPlaceId, from, to) {
+    return this.request('GET', `/api/ad-places/${adPlaceId}/availability`, null, { from, to });
+  }
+
+  static async getTargetingOptions() {
+    return this.request('GET', '/api/targeting/options');
+  }
+
+  static async getSearchInventory() {
+    return this.request('GET', '/api/search-campaign/inventory');
+  }
+
+  // --- Notifications ---
+  static async listNotifications(limit = 10) {
+    return this.request('GET', '/api/notifications', null, { limit });
+  }
+
+  static async markNotificationRead(notificationId) {
+    return this.request('POST', '/api/notifications/mark-read', { notificationId });
   }
 
   // --- Search Clusters (SERP) ---
