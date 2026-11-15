@@ -8,19 +8,31 @@ const BASE_URL = process.env.ADPLAT_BASE_URL || 'https://adplat.space';
 export class AdplatClient {
   static getAxios(customTimeout = 45000) {
     const cookie = AuthManager.getCookieHeader();
+    const apiKey = AuthManager.getApiKey();
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
+
+    if (cookie) {
+      headers['Cookie'] = cookie;
+    }
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+      headers['x-api-key'] = apiKey;
+    }
+
     return axios.create({
       baseURL: BASE_URL,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:160.0) Gecko/20100101 Firefox/160.0',
-        'Cookie': cookie,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
+      headers,
       timeout: customTimeout
     });
   }
 
-  static async request(method, path, data = null, params = null, timeout = 45000) {
+  static async request(method, path, data = null, params = null, timeout = 45000, retryCount = 0) {
+    await AuthManager.ensureAuthenticated();
     const client = this.getAxios(timeout);
     try {
       const response = await client({
@@ -35,8 +47,20 @@ export class AdplatClient {
         const status = error.response.status;
         const errData = error.response.data;
         const msg = errData?.error || errData?.message || JSON.stringify(errData) || error.message;
+
+        // Auto-heal / Auto-renewal on 401 using ADPLAT_PHONE & ADPLAT_PASSWORD
+        if (status === 401 && AuthManager.hasCredentials() && retryCount < 1) {
+          try {
+            console.error('[AdplatClient] Session expired (401). Auto-renewing session using ADPLAT_PHONE & ADPLAT_PASSWORD credentials...');
+            await AuthManager.autoLogin();
+            return await this.request(method, path, data, params, timeout, retryCount + 1);
+          } catch (autoErr) {
+            throw new Error(`Authentication Error (401): Session expired and auto-login failed: ${autoErr.message}`);
+          }
+        }
+
         if (status === 401) {
-          throw new Error(`Authentication Error (401): Session token is missing or expired. Use adplat_auth_send_otp or adplat_update_session. Details: ${msg}`);
+          throw new Error(`Authentication Error (401): Session token is missing or expired. You can configure ADPLAT_PHONE and ADPLAT_PASSWORD for auto-renewal, or use adplat_auth_send_otp / adplat_update_session. Details: ${msg}`);
         }
         if (status === 403) {
           throw new Error(`Permission Denied (403): ${msg}`);

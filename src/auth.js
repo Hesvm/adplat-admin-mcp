@@ -1,10 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 import axios from 'axios';
 import dotenv from 'dotenv';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from cwd and project root
 dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const CONFIG_PATH = path.join(os.homedir(), '.adplat-session.json');
 const BASE_URL = process.env.ADPLAT_BASE_URL || 'https://adplat.space';
@@ -25,6 +31,57 @@ export class AuthManager {
       p = '+98' + p;
     }
     return p;
+  }
+
+  static hasCredentials() {
+    return Boolean(
+      (process.env.ADPLAT_PHONE || process.env.ADPLAT_PHONE_NUMBER) &&
+      (process.env.ADPLAT_PASSWORD || process.env.ADPLAT_PASS)
+    );
+  }
+
+  static getCredentials() {
+    return {
+      phone: process.env.ADPLAT_PHONE || process.env.ADPLAT_PHONE_NUMBER || '',
+      password: process.env.ADPLAT_PASSWORD || process.env.ADPLAT_PASS || ''
+    };
+  }
+
+  static hasApiKey() {
+    return Boolean(this.getApiKey());
+  }
+
+  static getApiKey() {
+    if (process.env.ADPLAT_API_KEY) {
+      return process.env.ADPLAT_API_KEY.trim();
+    }
+    if (fs.existsSync(CONFIG_PATH)) {
+      try {
+        const data = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+        if (data.apiKey) return data.apiKey.trim();
+      } catch (e) {
+        // ignore read error
+      }
+    }
+    return null;
+  }
+
+  static setApiKey(key) {
+    if (!key || typeof key !== 'string') {
+      throw new Error('کلید API وارد شده نامعتبر است.');
+    }
+    const cleanKey = key.trim();
+    let data = {};
+    if (fs.existsSync(CONFIG_PATH)) {
+      try {
+        data = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+      } catch (e) {}
+    }
+    data.apiKey = cleanKey;
+    data.updatedAt = new Date().toISOString();
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(data, null, 2), { mode: 0o600 });
+    process.env.ADPLAT_API_KEY = cleanKey;
+    return true;
   }
 
   static getToken() {
@@ -50,14 +107,19 @@ export class AuthManager {
 
   static setToken(token, user = null) {
     if (!token || typeof token !== 'string') {
-      throw new Error('Invalid token provided');
+      throw new Error('توکن ارائه شده نامعتبر است.');
     }
     const cleanToken = token.trim();
-    const data = {
-      sessionToken: cleanToken,
-      user,
-      updatedAt: new Date().toISOString()
-    };
+    let data = {};
+    if (fs.existsSync(CONFIG_PATH)) {
+      try {
+        data = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+      } catch (e) {}
+    }
+    data.sessionToken = cleanToken;
+    data.user = user || data.user || null;
+    data.updatedAt = new Date().toISOString();
+
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(data, null, 2), { mode: 0o600 });
     process.env.ADPLAT_SESSION_TOKEN = cleanToken;
     return true;
@@ -67,6 +129,25 @@ export class AuthManager {
     const token = this.getToken();
     if (!token) return '';
     return `__Secure-better-auth.session_token=${token}`;
+  }
+
+  static async autoLogin() {
+    if (!this.hasCredentials()) {
+      return null;
+    }
+    const { phone, password } = this.getCredentials();
+    return this.loginPassword(phone, password);
+  }
+
+  static async ensureAuthenticated() {
+    if (this.getApiKey() || this.getToken()) {
+      return true;
+    }
+    if (this.hasCredentials()) {
+      await this.autoLogin();
+      return true;
+    }
+    return false;
   }
 
   // --- Interactive Headless OTP (Better-Auth) ---
@@ -193,6 +274,7 @@ export class AuthManager {
       return {
         success: true,
         message: 'ورود با رمز عبور با موفقیت انجام شد!',
+        token: token.slice(0, 8) + '...' + token.slice(-6),
         user: response.data?.user
       };
     } catch (error) {
