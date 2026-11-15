@@ -17,9 +17,24 @@ async function runAudit() {
     { name: 'Analytics Totals', fn: () => AdplatClient.getAnalytics() },
     { name: 'Unanswered Tickets Stats', fn: () => AdplatClient.getUnansweredTicketsSummary() },
     { name: 'Pending Payments Stats', fn: () => AdplatClient.getPendingPaymentsSummary() },
+    { name: 'Users Overview Stats', fn: () => AdplatClient.getUsersOverviewStats() },
+    { name: 'Customer Insights', fn: () => AdplatClient.getCustomerInsights() },
+    { name: 'Unspent Funds Overview', fn: () => AdplatClient.getUnspentFundsOverview() },
+    { name: 'Sales Capacity Stats', fn: () => AdplatClient.getSalesCapacityStats() },
+    { name: 'Sales Trend Stats', fn: () => AdplatClient.getSalesTrendStats() },
+    { name: 'Sales by Placement Stats', fn: () => AdplatClient.getSalesByPlacementStats() },
+    { name: 'Campaigns Overview Stats', fn: () => AdplatClient.getCampaignsOverviewStats() },
+    { name: 'Pending Review Stats', fn: () => AdplatClient.getPendingReviewCampaignsStats() },
+    { name: 'Pending Funding Stats', fn: () => AdplatClient.getPendingFundingCampaignsStats() },
+    { name: 'Ending Soon Stats', fn: () => AdplatClient.getEndingSoonCampaignsStats() },
+    { name: 'Placement Performance Stats', fn: () => AdplatClient.getPlacementPerformanceStats() },
+    { name: 'Placement Change Alerts', fn: () => AdplatClient.getPlacementChangeAlertsStats() },
+    { name: 'Placements Overview', fn: () => AdplatClient.getPlacementsOverview() },
+    { name: 'Placements 30d Stats', fn: () => AdplatClient.getPlacementsStats() },
     { name: 'Support Tickets List', fn: () => AdplatClient.listTickets() },
     { name: 'Campaigns List', fn: () => AdplatClient.listCampaigns() },
     { name: 'Ad Places List', fn: () => AdplatClient.listAdPlaces() },
+    { name: 'Platforms List', fn: () => AdplatClient.listPlatforms() },
     { name: 'Targeting Options', fn: () => AdplatClient.getTargetingOptions() },
     { name: 'Search Inventory', fn: () => AdplatClient.getSearchInventory() },
     { name: 'Notifications List', fn: () => AdplatClient.listNotifications(5) },
@@ -28,7 +43,10 @@ async function runAudit() {
     { name: 'External Search Clusters', fn: () => AdplatClient.getExternalSearchClusters() },
     { name: 'Users List', fn: () => AdplatClient.listUsers() },
     { name: 'Payments List', fn: () => AdplatClient.listPayments() },
-    { name: 'Industries List', fn: () => AdplatClient.listIndustries() }
+    { name: 'Industries List', fn: () => AdplatClient.listIndustries() },
+    { name: 'Automations State', fn: () => AdplatClient.getAutomations() },
+    { name: 'Automation Settings', fn: () => AdplatClient.getAutomationSettings() },
+    { name: 'Integration API Keys', fn: () => AdplatClient.listIntegrationApiKeys() }
   ];
 
   let passed = 0;

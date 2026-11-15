@@ -1,63 +1,147 @@
-# Adplat Admin MCP
+# Adplat Admin MCP (v1.3.0)
+> Model Context Protocol (MCP) server for Adplat.space & Dastyar advertising administration.
 
-An open-source Model Context Protocol (MCP) server connecting AI agents (Claude Desktop, Cursor, Antigravity, ChatGPT, Windsurf) to Adplat.space, the advertising and search platform behind Iran's Dastyar ecosystem.
+## Core Scope
+Provides 120 production-ready tools for AI assistants (Antigravity, Claude, Cursor) to manage:
+- Analytics & Deep Statistics: 22 reporting tools (capacity, sales trends, user insights, circulating funds, performance rankings)
+- Ad Places & Platforms: 16 tools (creation, base price updates, daily overrides, occupancy calendar, booking blocks)
+- Placement Content Architecture: 15 tools (creative fields, variants, templates, default items)
+- Campaign Deep Operations: 22 tools (full edit, manual status override, budget injection, bookings bulk edit, creative revisions, short links)
+- Search Clusters & SERP: 9 tools (keyword clusters, placement variants, search inventory)
+- Automations Engine: 6 tools (SMS triggers, delivery modes, scheduled jobs, test SMS)
+- Integration API Keys: 3 tools (generate, list, revoke platform API keys)
+- Users & Wallets: 5 tools (profile dossiers, manual wallet top-up, deduction, legal invoices)
+- Billing & Payments: 3 tools (bank receipts review, approvals)
+- Support Tickets: 3 tools (conversations, attachments, replies)
+- Industries Taxonomy: 4 tools (business categories CRUD)
+- System Notifications: 2 tools (alerts, mark read)
+- Media Uploads: 3 tools (direct CDN upload, presigned S3 URLs)
+- Authentication: 7 tools (Browser 1-click loopback, SMS OTP, Permanent API key, password login)
 
-## Overview
-Adplat Admin MCP bridges Large Language Models directly with Adplat's production REST APIs over stdio using the official `@modelcontextprotocol/sdk`. It provides 41 production-ready tools enabling full read and write control over marketing campaigns, SERP search clusters, support tickets, ad placement inventory across 13 slots, financial ledger reviews, and analytics covering 40M+ impressions.
+## Authentication Protocol
+Zero password storage in MCP config required.
+1. Browser Loopback (Recommended): `npm run login` -> http://localhost:43210 auto-detects browser session in 1 second.
+2. Headless SMS OTP: `adplat_auth_send_otp` -> `adplat_auth_verify_otp`.
+3. Permanent API Key: `adplat_auth_set_api_key`.
 
-## Core Capabilities
-- **Campaign & Creative Management:** List 300+ campaigns, inspect detailed creatives and targeting rules, adjust live budgets, fund campaigns from user balances, update copy/assets, review creative revisions, and cancel bookings.
-- **SERP & Keyword Cluster Intelligence:** Manage 50+ search clusters, add/update hundreds of keywords, list placement variants (Google SERP, Hooshang, etc.), discover external search volume trends, and trigger cluster re-indexing.
-- **Ad Places & Calendar Inventory:** Query availability across all 13 Dastyar ad spaces (Extension Sleeve, Rotating Bookmark, Calendar Event, Search Suggestion Icon, etc.) with day-by-day vacancy forecasts.
-- **Support & Ticket Operations:** Real-time ticketing with instant response dispatch, attachment uploads, category filtering, and unanswered queue tracking.
-- **Financial & Billing Operations:** Approve or reject direct bank receipt transfers, manage user balances across 330+ accounts, and inspect historical transaction ledgers.
-- **Analytics & Media:** Aggregated reporting across 40M impressions and clicks, system alerts, and direct image/asset uploads to Adplat's CDN.
-
-## Complete Tool List
-1. `adplat_auth_status`: Check connection status, active session token, auto-renewal status, and admin profile.
-2. `adplat_auth_send_otp`: Send SMS OTP code to mobile phone for passwordless authentication.
-3. `adplat_auth_verify_otp`: Verify 5-digit SMS OTP, extract session token, and persist authenticated state.
-4. `adplat_auth_login_password`: Direct login with mobile phone and account password.
-5. `adplat_auth_set_api_key`: Configure permanent API key (service token) for perpetual authentication.
-6. `adplat_update_session`: Manually update Better-Auth session token in runtime.
-7. `adplat_get_dashboard_analytics`: Query impressions, clicks, CTR, and metrics over custom date ranges.
-8. `adplat_get_statistics_summary`: Instant count of unanswered support tickets and pending payment reviews.
-9. `adplat_list_tickets`: List support tickets with user, category, and text filters.
-10. `adplat_get_ticket_details`: Retrieve full message history, attachments, and customer details for a ticket.
-11. `adplat_reply_ticket`: Send official support reply with optional file attachments.
-12. `adplat_list_campaigns`: List campaigns across all statuses (active, paused, draft, completed).
-13. `adplat_get_campaign_details`: Retrieve full campaign brief, targeting parameters, creatives, and booked dates.
-14. `adplat_update_campaign_status`: Activate, pause, or reject campaigns.
-15. `adplat_add_campaign_budget`: Inject direct budget (in Tomans) to an existing campaign.
-16. `adplat_fund_campaign`: Allocate funds from customer wallet balance to campaign.
-17. `adplat_transfer_campaign_owner`: Reassign campaign ownership to another registered user.
-18. `adplat_update_campaign_creative`: Update banners, titles, logos, video assets, and destination links.
-19. `adplat_cancel_campaign_bookings`: Cancel specific booked dates with custom cancellation reasons.
-20. `adplat_get_campaign_timeline`: Audit log of all campaign actions and state transitions.
-21. `adplat_list_creative_revisions`: Inspect pending creative content revisions submitted by users.
-22. `adplat_apply_creative_revision`: Approve and apply creative revision directly to campaign.
-23. `adplat_list_ad_places`: Retrieve all 13 advertising placements with daily base pricing.
-24. `adplat_get_ad_place_availability`: Day-by-day slot availability and vacancy forecasts.
-25. `adplat_get_targeting_options`: Geographic, job category, and audience targeting matrices.
-26. `adplat_get_search_inventory`: Available capacity and booking slots for search campaigns.
-27. `adplat_list_search_clusters`: Query active SERP search clusters, category topics, and keyword counts.
-28. `adplat_list_placement_variants`: View search layout templates (Google SERP, AI, etc.).
-29. `adplat_create_search_cluster`: Create new search cluster with keywords, placement templates, and industry tags.
-30. `adplat_update_search_cluster`: Edit cluster metadata or append keywords.
-31. `adplat_delete_search_cluster`: Remove obsolete search clusters.
-32. `adplat_refresh_search_cluster`: Force re-synchronization with external keyword data sources.
-33. `adplat_get_external_search_clusters`: Discover high-volume trending search queries and keyword clusters.
-34. `adplat_list_users`: Query 330+ users with wallet balances, company names, and phone numbers.
-35. `adplat_get_user_details`: Complete user dossier including profile, company, balance, and campaign history.
-36. `adplat_list_payments`: Inspect bank receipt transfers, payment methods, and verification status.
-37. `adplat_review_payment`: Approve wallet credit or reject bank deposit receipts with reasons.
-38. `adplat_list_industries`: Categorized industry taxonomy used across Adplat.
-39. `adplat_list_notifications`: Administrative alerts and user ticket notifications.
-40. `adplat_mark_notification_read`: Acknowledge and dismiss notifications.
-41. `adplat_upload_image`: Upload local images/banners directly to Adplat CDN storage.
-
-## Authentication Architecture
-- **Browser Loopback (1-Click):** Local temporary HTTP server (`http://localhost:43210`) captures active browser session automatically.
-- **Passwordless SMS OTP:** Headless phone verification via `/api/auth/phone-number/send-otp`.
-- **Permanent API Key:** Support for static tokens via `ADPLAT_API_KEY` header.
-- **Security:** Session files stored in `~/.adplat-session.json` with strict POSIX `0o600` permissions. No passwords required.
+## 120 Registered Tools Catalog
+- adplat_auth_status: Validate current session & admin profile
+- adplat_auth_send_otp: Send SMS OTP to admin phone
+- adplat_auth_verify_otp: Verify SMS code and persist session
+- adplat_auth_login_password: Direct password login
+- adplat_update_session: Update session token cookie
+- adplat_auth_set_api_key: Save permanent API key
+- adplat_get_profile: Get logged-in admin identity
+- adplat_get_dashboard_analytics: Telemetry queries across date ranges
+- adplat_get_statistics_summary: Instant counters of tickets & payments
+- adplat_get_users_overview_stats: User registrations and growth
+- adplat_get_customer_insights: Customer concentration & top spenders
+- adplat_get_unspent_funds_overview: Circulating unspent advertiser funds
+- adplat_get_unspent_funds_details: Breakdown by wallets or campaigns
+- adplat_get_sales_overview_stats: Gross sales & order volume
+- adplat_get_sales_capacity_stats: Slot saturation & capacity value
+- adplat_get_sales_details_stats: Granular sales order list
+- adplat_get_sales_trend_stats: Sales revenue timeline
+- adplat_get_sales_by_placement_stats: Revenue per placement & platform
+- adplat_get_campaigns_overview_stats: Campaign status summary
+- adplat_get_campaign_status_details_stats: Status group campaign list
+- adplat_get_pending_review_campaigns_stats: Campaigns awaiting review
+- adplat_get_pending_funding_campaigns_stats: Campaigns awaiting funding
+- adplat_get_ending_soon_campaigns_stats: Campaigns expiring soon
+- adplat_get_placement_performance_stats: CTR & performance rankings
+- adplat_get_placement_change_alerts_stats: Performance anomaly alerts
+- adplat_get_placement_trend_stats: Placement trend over time
+- adplat_get_capacity_fulfillment_stats: Shamsi monthly capacity rates
+- adplat_get_placements_overview: Platform & placement hierarchy
+- adplat_get_placements_stats: Placement 30d impressions & clicks
+- adplat_list_ad_places: List placements with live base prices
+- adplat_get_ad_place_details: Placement specifications & details
+- adplat_create_ad_place: Create brand-new ad placement
+- adplat_update_ad_place: Update placement configuration
+- adplat_update_ad_place_base_price: Update base daily price in Tomans
+- adplat_toggle_ad_place_status: Activate or deactivate placement
+- adplat_delete_ad_place: Remove placement
+- adplat_get_ad_place_occupancy: Day-by-day booked vs free slots
+- adplat_get_ad_place_pricing_calendar: Date range pricing calendar
+- adplat_set_ad_place_daily_pricing: Set daily price overrides
+- adplat_delete_ad_place_daily_pricing: Delete overrides back to base price
+- adplat_set_ad_place_booking_blocks: Block or unblock dates for booking
+- adplat_list_platforms: List platforms (Dastyar, Hooshang, Davat)
+- adplat_create_platform: Register host platform
+- adplat_update_platform: Update platform details
+- adplat_delete_platform: Delete host platform
+- adplat_get_placement_content_fields: Creative fields definition
+- adplat_create_placement_content_field: Add creative content field
+- adplat_update_placement_content_field: Update field validations/labels
+- adplat_delete_placement_content_field: Remove content field
+- adplat_get_placement_content_variants: Placement creative variants
+- adplat_create_placement_content_variant: Create creative variant
+- adplat_update_placement_content_variant: Update creative variant
+- adplat_delete_placement_content_variant: Delete creative variant
+- adplat_get_placement_content_template: Placement rendering template
+- adplat_update_placement_content_template: Save rendering template
+- adplat_get_placement_content_items: Default fallback content items
+- adplat_create_placement_content_item: Add fallback content item
+- adplat_update_placement_content_item: Update fallback content item
+- adplat_duplicate_placement_content_item: Duplicate content item
+- adplat_delete_placement_content_item: Delete fallback content item
+- adplat_list_campaigns: List campaigns with filters
+- adplat_get_campaign_details: Full campaign configuration & targeting
+- adplat_edit_campaign_details: Edit core campaign info
+- adplat_update_campaign_status: Change lifecycle status
+- adplat_set_campaign_manual_status: Force manual status override
+- adplat_add_campaign_budget: Inject additional budget in Tomans
+- adplat_fund_campaign: Fund campaign from advertiser wallet
+- adplat_transfer_campaign_owner: Reassign campaign owner
+- adplat_delete_campaign: Delete draft or cancelled campaign
+- adplat_finalize_campaign_draft: Finalize admin campaign draft
+- adplat_get_campaign_timeline: Lifecycle audit log & events
+- adplat_get_campaign_creative_fields: Required creative schema
+- adplat_get_campaign_search_delivery: Search keywords pacing & settings
+- adplat_list_campaign_bookings: List reserved dates & slots
+- adplat_bulk_update_bookings: Bulk modify booking dates/slots
+- adplat_bulk_assign_creative_bookings: Assign banners to booking slots
+- adplat_cancel_campaign_bookings: Cancel specific bookings
+- adplat_get_campaign_creatives: Campaign banners & copy assets
+- adplat_update_campaign_creative: Update creative assets & links
+- adplat_list_creative_revisions: Historical creative revisions
+- adplat_apply_creative_revision: Re-apply creative revision
+- adplat_retry_creative_short_links: Regenerate UTM short links
+- adplat_list_search_clusters: List search keyword clusters
+- adplat_get_placement_variants: Search delivery placement variants
+- adplat_create_search_cluster: Create search keyword cluster
+- adplat_update_search_cluster: Update cluster keywords & price
+- adplat_delete_search_cluster: Delete search cluster
+- adplat_refresh_search_cluster: Re-index search cluster
+- adplat_list_search_clusters_external: External keyword trends
+- adplat_get_search_inventory: Real-time search inventory
+- adplat_get_targeting_options: Geographic & audience targeting
+- adplat_get_automations: Automation engine triggers & templates
+- adplat_get_automation_settings: Delivery policies & throttling
+- adplat_update_automation_settings: Save automation settings
+- adplat_list_automation_jobs: Automation execution history
+- adplat_trigger_automation_job: Manually trigger automation job
+- adplat_send_test_sms: Send test SMS via gateway
+- adplat_list_integration_api_keys: Connected app integration keys
+- adplat_create_integration_api_key: Generate platform integration key
+- adplat_revoke_integration_api_key: Revoke integration API key
+- adplat_list_users: List advertiser accounts
+- adplat_get_user_details: Full user dossier & history
+- adplat_topup_user_wallet: Credit user wallet in Tomans
+- adplat_deduct_user_wallet: Deduct user wallet balance
+- adplat_update_user_invoice_info: Update legal invoice data
+- adplat_list_payments: Bank transfer receipts list
+- adplat_get_payment_details: Bank slip details & image
+- adplat_review_payment: Approve or reject bank slip
+- adplat_list_tickets: Support tickets list
+- adplat_get_ticket_details: Support conversation thread
+- adplat_reply_ticket: Send admin support reply
+- adplat_list_industries: Business categories taxonomy
+- adplat_create_industry: Create industry category
+- adplat_update_industry: Update industry category
+- adplat_delete_industry: Delete industry category
+- adplat_list_notifications: Admin alerts list
+- adplat_mark_notification_read: Mark notification read
+- adplat_get_presigned_upload_url: S3 presigned upload URL
+- adplat_upload_image: Upload local image to CDN
+- adplat_upload_placement_image: Upload placement preview mockup
