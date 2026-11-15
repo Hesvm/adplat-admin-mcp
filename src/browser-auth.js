@@ -444,7 +444,7 @@ function getMainHtml() {
     }
 
     // --- AUTO-DISCOVERY ON PAGE LOAD ---
-    window.addEventListener('DOMContentLoaded', async () => {
+    async function initAutoDetect() {
       try {
         const res = await fetch('/api/session-info');
         const info = await res.json();
@@ -452,29 +452,36 @@ function getMainHtml() {
         if (info.hasSession && (info.token || info.apiKey)) {
           const val = info.token || info.apiKey;
           const input = document.getElementById('manualToken');
-          input.value = val;
+          if (input) input.value = val;
 
           const badge = document.getElementById('autoDetectBox');
           const badgeText = document.getElementById('autoDetectText');
           const userName = info.profile?.name || 'مدیر ادپلت';
           const userCompany = info.profile?.companyName ? ' (' + info.profile.companyName + ')' : '';
 
-          badge.style.display = 'flex';
-          badgeText.innerHTML = '✅ نشست فعال شناسایی شد: <strong>' + userName + userCompany + '</strong>';
+          if (badge) badge.style.display = 'flex';
+          if (badgeText) badgeText.innerHTML = '✅ نشست فعال شناسایی شد: <strong>' + userName + userCompany + '</strong>';
 
-          showStatus('🎉 نشست معتبر شما شناسایی و خودکار پر شد!\nدر حال اتصال خودکار...', 'success');
+          showStatus('🎉 نشست معتبر شما شناسایی و خودکار پر شد! در حال اتصال...', 'success');
 
           // Auto-trigger connect after 1 second so user doesn't even have to click!
           setTimeout(() => {
             saveManualToken(val);
           }, 1200);
         } else {
-          document.getElementById('manualToken').placeholder = 'مقدار توکن نشست را اینجا بچسبانید یا دکمه کلیپ‌بورد را بزنید...';
+          const input = document.getElementById('manualToken');
+          if (input) input.placeholder = 'مقدار توکن نشست را اینجا بچسبانید یا دکمه کلیپ‌بورد را بزنید...';
         }
       } catch (e) {
         console.error('Session info error:', e);
       }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAutoDetect);
+    } else {
+      initAutoDetect();
+    }
 
     async function readFromClipboard() {
       try {
