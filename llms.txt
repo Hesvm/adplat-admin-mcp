@@ -1,0 +1,63 @@
+# Adplat Admin MCP
+
+An open-source Model Context Protocol (MCP) server connecting AI agents (Claude Desktop, Cursor, Antigravity, ChatGPT, Windsurf) to Adplat.space, the advertising and search platform behind Iran's Dastyar ecosystem.
+
+## Overview
+Adplat Admin MCP bridges Large Language Models directly with Adplat's production REST APIs over stdio using the official `@modelcontextprotocol/sdk`. It provides 41 production-ready tools enabling full read and write control over marketing campaigns, SERP search clusters, support tickets, ad placement inventory across 13 slots, financial ledger reviews, and analytics covering 40M+ impressions.
+
+## Core Capabilities
+- **Campaign & Creative Management:** List 300+ campaigns, inspect detailed creatives and targeting rules, adjust live budgets, fund campaigns from user balances, update copy/assets, review creative revisions, and cancel bookings.
+- **SERP & Keyword Cluster Intelligence:** Manage 50+ search clusters, add/update hundreds of keywords, list placement variants (Google SERP, Hooshang, etc.), discover external search volume trends, and trigger cluster re-indexing.
+- **Ad Places & Calendar Inventory:** Query availability across all 13 Dastyar ad spaces (Extension Sleeve, Rotating Bookmark, Calendar Event, Search Suggestion Icon, etc.) with day-by-day vacancy forecasts.
+- **Support & Ticket Operations:** Real-time ticketing with instant response dispatch, attachment uploads, category filtering, and unanswered queue tracking.
+- **Financial & Billing Operations:** Approve or reject direct bank receipt transfers, manage user balances across 330+ accounts, and inspect historical transaction ledgers.
+- **Analytics & Media:** Aggregated reporting across 40M impressions and clicks, system alerts, and direct image/asset uploads to Adplat's CDN.
+
+## Complete Tool List
+1. `adplat_auth_status`: Check connection status, active session token, auto-renewal status, and admin profile.
+2. `adplat_auth_send_otp`: Send SMS OTP code to mobile phone for passwordless authentication.
+3. `adplat_auth_verify_otp`: Verify 5-digit SMS OTP, extract session token, and persist authenticated state.
+4. `adplat_auth_login_password`: Direct login with mobile phone and account password.
+5. `adplat_auth_set_api_key`: Configure permanent API key (service token) for perpetual authentication.
+6. `adplat_update_session`: Manually update Better-Auth session token in runtime.
+7. `adplat_get_dashboard_analytics`: Query impressions, clicks, CTR, and metrics over custom date ranges.
+8. `adplat_get_statistics_summary`: Instant count of unanswered support tickets and pending payment reviews.
+9. `adplat_list_tickets`: List support tickets with user, category, and text filters.
+10. `adplat_get_ticket_details`: Retrieve full message history, attachments, and customer details for a ticket.
+11. `adplat_reply_ticket`: Send official support reply with optional file attachments.
+12. `adplat_list_campaigns`: List campaigns across all statuses (active, paused, draft, completed).
+13. `adplat_get_campaign_details`: Retrieve full campaign brief, targeting parameters, creatives, and booked dates.
+14. `adplat_update_campaign_status`: Activate, pause, or reject campaigns.
+15. `adplat_add_campaign_budget`: Inject direct budget (in Tomans) to an existing campaign.
+16. `adplat_fund_campaign`: Allocate funds from customer wallet balance to campaign.
+17. `adplat_transfer_campaign_owner`: Reassign campaign ownership to another registered user.
+18. `adplat_update_campaign_creative`: Update banners, titles, logos, video assets, and destination links.
+19. `adplat_cancel_campaign_bookings`: Cancel specific booked dates with custom cancellation reasons.
+20. `adplat_get_campaign_timeline`: Audit log of all campaign actions and state transitions.
+21. `adplat_list_creative_revisions`: Inspect pending creative content revisions submitted by users.
+22. `adplat_apply_creative_revision`: Approve and apply creative revision directly to campaign.
+23. `adplat_list_ad_places`: Retrieve all 13 advertising placements with daily base pricing.
+24. `adplat_get_ad_place_availability`: Day-by-day slot availability and vacancy forecasts.
+25. `adplat_get_targeting_options`: Geographic, job category, and audience targeting matrices.
+26. `adplat_get_search_inventory`: Available capacity and booking slots for search campaigns.
+27. `adplat_list_search_clusters`: Query active SERP search clusters, category topics, and keyword counts.
+28. `adplat_list_placement_variants`: View search layout templates (Google SERP, AI, etc.).
+29. `adplat_create_search_cluster`: Create new search cluster with keywords, placement templates, and industry tags.
+30. `adplat_update_search_cluster`: Edit cluster metadata or append keywords.
+31. `adplat_delete_search_cluster`: Remove obsolete search clusters.
+32. `adplat_refresh_search_cluster`: Force re-synchronization with external keyword data sources.
+33. `adplat_get_external_search_clusters`: Discover high-volume trending search queries and keyword clusters.
+34. `adplat_list_users`: Query 330+ users with wallet balances, company names, and phone numbers.
+35. `adplat_get_user_details`: Complete user dossier including profile, company, balance, and campaign history.
+36. `adplat_list_payments`: Inspect bank receipt transfers, payment methods, and verification status.
+37. `adplat_review_payment`: Approve wallet credit or reject bank deposit receipts with reasons.
+38. `adplat_list_industries`: Categorized industry taxonomy used across Adplat.
+39. `adplat_list_notifications`: Administrative alerts and user ticket notifications.
+40. `adplat_mark_notification_read`: Acknowledge and dismiss notifications.
+41. `adplat_upload_image`: Upload local images/banners directly to Adplat CDN storage.
+
+## Authentication Architecture
+- **Browser Loopback (1-Click):** Local temporary HTTP server (`http://localhost:43210`) captures active browser session automatically.
+- **Passwordless SMS OTP:** Headless phone verification via `/api/auth/phone-number/send-otp`.
+- **Permanent API Key:** Support for static tokens via `ADPLAT_API_KEY` header.
+- **Security:** Session files stored in `~/.adplat-session.json` with strict POSIX `0o600` permissions. No passwords required.
