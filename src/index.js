@@ -901,3 +901,10 @@ export async function runServer() {
   await server.connect(transport);
   console.error("Adplat Admin MCP Server is running on stdio");
 }
+
+if (process.argv[1] && (process.argv[1].endsWith('src/index.js') || process.argv[1].endsWith('index.js'))) {
+  runServer().catch((error) => {
+    console.error("Fatal error starting Adplat Admin MCP server:", error);
+    process.exit(1);
+  });
+}
