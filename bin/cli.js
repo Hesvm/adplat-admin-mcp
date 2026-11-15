@@ -36,14 +36,13 @@ async function interactiveLoginMenu() {
   console.log('║       سامانه ورود Adplat Admin MCP Server           ║');
   console.log('╚══════════════════════════════════════════════════════╝\n');
   console.log('روش مورد نظر خود را برای ورود انتخاب کنید:\n');
-  console.log('  1) 🌐 ورود تعاملی با مرورگر (Browser One-Click - پیشنهادی)');
-  console.log('  2) 📱 پیامک کد تأیید (Passwordless SMS OTP)');
-  console.log('  3) 🔑 ورود با نام‌کاربری و رمز عبور (Phone & Password)');
-  console.log('  4) 📋 وارد کردن دستی توکن یا API Key');
-  console.log('  5) ❌ انصراف\n');
+  console.log('  1) 🌐 ورود با مرورگر (Browser 1-Click - پیش‌فرض و آسان‌ترین)');
+  console.log('  2) 📱 پیامک کد تأیید (Passwordless SMS OTP - بدون پسورد)');
+  console.log('  3) 🔑 کلید دائمی API Key یا توکن سشن');
+  console.log('  4) ❌ انصراف\n');
 
   try {
-    const choice = (await rl.question('گزینه مورد نظر (1-5) [پیش‌فرض: 1]: ')).trim() || '1';
+    const choice = (await rl.question('گزینه مورد نظر (1-4) [پیش‌فرض: 1]: ')).trim() || '1';
     rl.close();
 
     switch (choice) {
@@ -54,12 +53,9 @@ async function interactiveLoginMenu() {
         await otpLogin();
         break;
       case '3':
-        await passwordLogin();
-        break;
-      case '4':
         await manualTokenLogin();
         break;
-      case '5':
+      case '4':
         console.log('عملیات لغو شد.');
         process.exit(0);
         break;

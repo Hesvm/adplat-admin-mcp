@@ -15,7 +15,6 @@
     "login": "node bin/cli.js login",
     "login:browser": "node bin/cli.js login --browser",
     "login:otp": "node bin/cli.js login --otp",
-    "login:pass": "node bin/cli.js login --password",
     "status": "node bin/cli.js status",
     "test": "node src/test-connection.js",
     "audit": "node scripts/audit-tools.js"

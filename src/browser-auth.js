@@ -299,45 +299,46 @@ function getMainHtml() {
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('passTab', this)">ورود با رمز عبور</button>
-      <button class="tab-btn" onclick="switchTab('otpTab', this)">کد پیامک (OTP)</button>
-      <button class="tab-btn" onclick="switchTab('tokenTab', this)">توکن دستی</button>
+      <button class="tab-btn active" onclick="switchTab('otpTab', this)">کد پیامک (SMS OTP)</button>
+      <button class="tab-btn" onclick="switchTab('tokenTab', this)">کلید API Key یا توکن</button>
+      <button class="tab-btn" onclick="switchTab('quickTab', this)">اتصال ۱ کلیک مرورگر</button>
     </div>
 
-    <!-- Password Tab -->
-    <div id="passTab" class="tab-content active">
+    <!-- OTP Tab (Default & Most Popular) -->
+    <div id="otpTab" class="tab-content active">
       <div class="form-group">
-        <label>شماره موبایل مدیر:</label>
-        <input type="text" id="passPhone" placeholder="09014182301" dir="ltr">
-      </div>
-      <div class="form-group">
-        <label>رمز عبور:</label>
-        <input type="password" id="passPassword" placeholder="••••••••" dir="ltr">
-      </div>
-      <button class="btn" onclick="submitPassword()">ورود خودکار و دائمی</button>
-    </div>
-
-    <!-- OTP Tab -->
-    <div id="otpTab" class="tab-content">
-      <div class="form-group">
-        <label>شماره موبایل:</label>
+        <label>شماره موبایل مدیر (بدون نیاز به پسورد):</label>
         <input type="text" id="otpPhone" placeholder="09014182301" dir="ltr">
       </div>
-      <button class="btn secondary" id="btnSendOtp" onclick="sendOtp()">ارسال پیامک کد تأیید</button>
+      <button class="btn" id="btnSendOtp" onclick="sendOtp()">ارسال پیامک کد تأیید</button>
 
       <div id="otpVerifySection" style="display:none; margin-top:16px;">
         <div class="form-group">
           <label>کد ۵ رقمی ارسال‌شده:</label>
           <input type="text" id="otpCode" placeholder="12345" dir="ltr" maxlength="6">
         </div>
-        <button class="btn" onclick="verifyOtp()">تأیید کد و اتصال</button>
+        <button class="btn" onclick="verifyOtp()">تأیید کد و اتصال دائم</button>
       </div>
     </div>
 
-    <!-- Token Tab -->
+    <!-- Token / API Key Tab -->
     <div id="tokenTab" class="tab-content">
       <div class="form-group">
-        <label>توکن نشست (Better-Auth Session Token یا API Key):</label>
+        <label>کلید دائمی API Key یا توکن سشن:</label>
+        <input type="text" id="manualToken" placeholder="adp_live_... یا توکن نشست" dir="ltr">
+      </div>
+      <button class="btn" onclick="saveManualToken()">ذخیره و اتصال دائم</button>
+    </div>
+
+    <!-- Quick Browser 1-Click Tab -->
+    <div id="quickTab" class="tab-content">
+      <p style="font-size:13px; color:#8b949e; line-height:1.7; margin-bottom:14px;">
+        اگر در حال حاضر در مرورگر خود داخل پنل ادپلت لاگین هستید، با باز کردن پنل و کپی کلید/توکن یا استفاده از callback محلی فوراً متصل شوید:
+      </p>
+      <a href="https://adplat.space/admin/dashboard" target="_blank" style="text-decoration:none;">
+        <button class="btn secondary" type="button">باز کردن داشبورد ادپلت در تب جدید ↗</button>
+      </a>
+    </div>
         <input type="text" id="manualToken" placeholder="مقدار توکن را اینجا بچسبانید..." dir="ltr">
       </div>
       <button class="btn" onclick="saveManualToken()">ذخیره نشست</button>
