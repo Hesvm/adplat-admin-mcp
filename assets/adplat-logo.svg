@@ -1,18 +1,6 @@
-<svg width="160" height="42" viewBox="0 0 160 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Adplat 4-Point Sparkle Icon -->
-  <g transform="translate(6, 6)">
-    <!-- Main Sparkle -->
-    <path d="M15 0 C15 7.5 17.5 12 25 15 C17.5 18 15 22.5 15 30 C15 22.5 12.5 18 5 15 C12.5 12 15 7.5 15 0 Z" fill="url(#adplat_grad)" />
-    <!-- Secondary Small Sparkle -->
-    <path d="M26 4 C26 6 27 7.5 29 8.5 C27 9.5 26 11 26 13 C26 11 25 9.5 23 8.5 C25 7.5 26 6 26 4 Z" fill="#F59E0B" opacity="0.9" />
-  </g>
-  <!-- Adplat Wordmark -->
-  <text x="44" y="27" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif" font-weight="800" font-size="22" fill="#0284C7" letter-spacing="-0.5">Adplat</text>
-  <defs>
-    <linearGradient id="adplat_grad" x1="5" y1="0" x2="25" y2="30" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0284C7" />
-      <stop offset="0.5" stop-color="#0EA5E9" />
-      <stop offset="1" stop-color="#F59E0B" />
-    </linearGradient>
-  </defs>
+<svg width="175" height="175" viewBox="0 0 175 175" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M43.0986 12.5106L130.599 164.065" stroke="#0CA5E9" stroke-opacity="0.3" stroke-width="31.25"/>
+<path d="M174.383 88.1508L86.2516 88.1508" stroke="#0CA5E9" stroke-opacity="0.3" stroke-width="31.25"/>
+<path d="M86.9135 88.6621L130.661 12.8905" stroke="#0CA5E9" stroke-opacity="0.3" stroke-width="31.25"/>
+<path d="M43.1458 164.435L86.8928 88.6625L0 88.6625" stroke="#0CA5E9" stroke-width="31.25"/>
 </svg>
