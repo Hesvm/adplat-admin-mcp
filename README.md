@@ -29,7 +29,7 @@
 
 **Adplat Admin MCP** is an enterprise-grade, open-source bridge connecting AI agents—such as Claude Desktop, Cursor, Google Antigravity, and Windsurf—directly to **Adplat.space**, the core advertising and search marketing infrastructure behind Iran's **Dastyar** browser platform.
 
-Built on the open [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) standard, it equips LLMs with **120 production-ready tools** for end-to-end administration:
+Built on the open [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) standard, it equips LLMs with **135 production-ready tools** for end-to-end administration:
 
 - **Campaign & Creative Management:** Adjust live budgets, reallocate user wallet funds, swap creative assets, approve revisions, and update targeting rules across 300+ campaigns.
 - **SERP Search Clusters:** Control 50+ search clusters, manage keyword expansions, discover external search trends, and audit SERP placement variants (Google SERP, Hooshang AI).
@@ -109,7 +109,7 @@ Adplat Admin MCP mirrors 100% of the native web dashboard capabilities, allowing
 
 ---
 
-## 🛠️ Available MCP Tools (120 Production Tools)
+## 🛠️ Available MCP Tools (135 Production Tools)
 
 ### 1. Authentication & Security (7 Tools)
 | Tool | Type | Description |
@@ -287,6 +287,34 @@ Adplat Admin MCP mirrors 100% of the native web dashboard capabilities, allowing
 | `adplat_upload_image` | `Write` | Uploads a local image file directly to Adplat CDN. |
 | `adplat_upload_placement_image` | `Write` | Uploads an ad placement mockup / preview image to the placement assets bucket. |
 
+
+### 15. Search Capacity & Day-by-Day Forecasts (4 Tools)
+| Tool | Type | Description |
+|---|---|---|
+| `adplat_get_search_capacity_stats` | `Read` | Search keyword slot capacity saturation, total value, and available capacity for a Shamsi month. |
+| `adplat_get_search_capacity_rentals` | `Read` | List active keyword cluster rentals booked across search capacity for a Shamsi month. |
+| `adplat_get_search_capacity_day_details` | `Read` | Detailed search rental bookings running on a specific placement on a given date. |
+| `adplat_get_capacity_fulfillment_day_details` | `Read` | Itemized campaign orders running on a specific placement on a given calendar date. |
+
+### 16. Campaign Analytics & Deep Booking Operations (3 Tools)
+| Tool | Type | Description |
+|---|---|---|
+| `adplat_get_campaign_analytics` | `Read` | Granular telemetry, impression counts, CTR, timeSeries data, and breakdowns for a specific campaign. |
+| `adplat_save_search_bookings` | `Write` | Reserve or update search cluster keyword booking periods for a campaign. |
+| `adplat_delete_campaign_bookings_bulk` | `Write` | Delete multiple booking slot reservations for a campaign simultaneously. |
+| `adplat_get_ad_place_content_requirements` | `Read` | Serving type, layout template, required creative fields, and variants for an ad place. |
+
+### 17. Central Stock Images & Asset Library (7 Tools)
+| Tool | Type | Description |
+|---|---|---|
+| `adplat_list_stock_images` | `Read` | Browse and search the central stock images library with category and keyword filters. |
+| `adplat_create_stock_image` | `Write` | Add a new stock image asset to the central library with title and tags. |
+| `adplat_update_stock_image` | `Write` | Update metadata, title, category, or tags of a stock image. |
+| `adplat_delete_stock_image` | `Write` | Delete a stock image asset from the central library. |
+| `adplat_bulk_create_stock_images` | `Write` | Batch import multiple stock image assets into the library at once. |
+| `adplat_describe_stock_image` | `Write` | Generate AI captions and visual descriptions for a stock image asset. |
+| `adplat_get_stock_image_suggestions` | `Read` | Get AI-recommended stock images tailored to specific creative fields or campaign copy. |
+
 ---
 
 ## 🚀 Quickstart in 30 Seconds
@@ -314,7 +342,7 @@ flowchart TD
     B --> S
     C --> S
 
-    S --> M["⚡ 120 Production Tools Connected & Active"]
+    S --> M["⚡ 135 Production Tools Connected & Active"]
 ```
 
 #### 🌐 Method 1: Browser 1-Click Loopback (Recommended)

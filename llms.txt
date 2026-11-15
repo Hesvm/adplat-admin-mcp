@@ -1,8 +1,8 @@
-# Adplat Admin MCP (v1.3.0)
+# Adplat Admin MCP (v1.4.0)
 > Model Context Protocol (MCP) server for Adplat.space & Dastyar advertising administration.
 
 ## Core Scope
-Provides 120 production-ready tools for AI assistants (Antigravity, Claude, Cursor) to manage:
+Provides 135 production-ready tools for AI assistants (Antigravity, Claude, Cursor) to manage:
 - Analytics & Deep Statistics: 22 reporting tools (capacity, sales trends, user insights, circulating funds, performance rankings)
 - Ad Places & Platforms: 16 tools (creation, base price updates, daily overrides, occupancy calendar, booking blocks)
 - Placement Content Architecture: 15 tools (creative fields, variants, templates, default items)
@@ -24,7 +24,7 @@ Zero password storage in MCP config required.
 2. Headless SMS OTP: `adplat_auth_send_otp` -> `adplat_auth_verify_otp`.
 3. Permanent API Key: `adplat_auth_set_api_key`.
 
-## 120 Registered Tools Catalog
+## 135 Registered Tools Catalog
 - adplat_auth_status: Validate current session & admin profile
 - adplat_auth_send_otp: Send SMS OTP to admin phone
 - adplat_auth_verify_otp: Verify SMS code and persist session
@@ -145,3 +145,19 @@ Zero password storage in MCP config required.
 - adplat_get_presigned_upload_url: S3 presigned upload URL
 - adplat_upload_image: Upload local image to CDN
 - adplat_upload_placement_image: Upload placement preview mockup
+
+- adplat_get_search_capacity_stats: Search keyword capacity saturation & total value
+- adplat_get_search_capacity_rentals: Search cluster rentals roster
+- adplat_get_search_capacity_day_details: Search daily rental bookings per placement
+- adplat_get_capacity_fulfillment_day_details: Itemized campaign orders on specific date
+- adplat_get_campaign_analytics: Campaign telemetry, CTR and timeSeries breakdown
+- adplat_save_search_bookings: Reserve search cluster booking periods
+- adplat_delete_campaign_bookings_bulk: Bulk delete multiple booking slots
+- adplat_get_ad_place_content_requirements: Placement serving type & layout templates
+- adplat_list_stock_images: Central stock images & icons library
+- adplat_create_stock_image: Add asset to stock library
+- adplat_update_stock_image: Update stock asset tags/metadata
+- adplat_delete_stock_image: Delete stock asset from library
+- adplat_bulk_create_stock_images: Batch upload stock assets
+- adplat_describe_stock_image: AI visual captioning for stock asset
+- adplat_get_stock_image_suggestions: AI image recommendation tailored to ad copy

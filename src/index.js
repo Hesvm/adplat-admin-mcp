@@ -6,7 +6,7 @@ import { AuthManager } from "./auth.js";
 
 const server = new McpServer({
   name: "adplat-admin-mcp",
-  version: "1.3.0"
+  version: "1.4.0"
 });
 
 // Helper to format response text
@@ -2346,6 +2346,307 @@ server.tool(
         success: true,
         url: result.url || result.fileUrl || result.path || result
       });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+// ==========================================
+// 15. SEARCH CAPACITY & DAY BREAKDOWNS (4 TOOLS)
+// ==========================================
+server.tool(
+  "adplat_get_search_capacity_stats",
+  "Get search keyword slot capacity saturation, total value, and available capacity for a Shamsi month.",
+  {
+    year: z.number().describe("Shamsi year (e.g. 1403)"),
+    month: z.number().describe("Shamsi month (1-12)")
+  },
+  async ({ year, month }) => {
+    try {
+      const data = await AdplatClient.getSearchCapacityStats(year, month);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_search_capacity_rentals",
+  "List active keyword cluster rentals booked across search capacity for a Shamsi month.",
+  {
+    year: z.number().describe("Shamsi year (e.g. 1403)"),
+    month: z.number().describe("Shamsi month (1-12)")
+  },
+  async ({ year, month }) => {
+    try {
+      const data = await AdplatClient.getSearchCapacityRentals(year, month);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_search_capacity_day_details",
+  "Get detailed search rental bookings running on a specific placement on a given date.",
+  {
+    adPlaceId: z.string().describe("UUID of the search ad placement"),
+    date: z.string().describe("Date in Shamsi or Gregorian format (e.g. 1403-08-15)")
+  },
+  async ({ adPlaceId, date }) => {
+    try {
+      const data = await AdplatClient.getSearchCapacityDayDetails(adPlaceId, date);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_capacity_fulfillment_day_details",
+  "Get itemized campaign orders running on a specific placement on a given calendar date.",
+  {
+    adPlaceId: z.string().describe("UUID of the ad placement"),
+    date: z.string().describe("Date (e.g. 1403-08-15)")
+  },
+  async ({ adPlaceId, date }) => {
+    try {
+      const data = await AdplatClient.getCapacityFulfillmentDayDetails(adPlaceId, date);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+// ==========================================
+// 16. CAMPAIGN TELEMETRY & BOOKING OPERATIONS (3 TOOLS)
+// ==========================================
+server.tool(
+  "adplat_get_campaign_analytics",
+  "Get granular telemetry, impression counts, CTR, timeSeries data, and breakdowns for a specific campaign.",
+  {
+    campaignId: z.string().describe("UUID of the campaign"),
+    startDate: z.string().optional().describe("Start date (YYYY-MM-DD)"),
+    endDate: z.string().optional().describe("End date (YYYY-MM-DD)")
+  },
+  async ({ campaignId, ...params }) => {
+    try {
+      const data = await AdplatClient.getCampaignAnalytics(campaignId, params);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_save_search_bookings",
+  "Reserve or update search cluster keyword booking periods for a campaign.",
+  {
+    campaignId: z.string().describe("UUID of the search campaign"),
+    clusters: z.array(z.record(z.any())).describe("Array of cluster booking specifications ({ clusterId, startDate, durationDays })")
+  },
+  async ({ campaignId, clusters }) => {
+    try {
+      const result = await AdplatClient.saveSearchBookings(campaignId, clusters);
+      return jsonResponse({
+        success: true,
+        message: "رزرو کلاسترهای جستجو با موفقیت ثبت شد.",
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_delete_campaign_bookings_bulk",
+  "Delete multiple booking slot reservations for a campaign simultaneously.",
+  {
+    campaignId: z.string().describe("UUID of the campaign"),
+    bookingIds: z.array(z.string()).describe("Array of booking UUIDs to delete")
+  },
+  async ({ campaignId, bookingIds }) => {
+    try {
+      const result = await AdplatClient.deleteCampaignBookingsBulk(campaignId, bookingIds);
+      return jsonResponse({
+        success: true,
+        message: `تعداد ${bookingIds.length} رزرو با موفقیت حذف شدند.`,
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_ad_place_content_requirements",
+  "Get serving type, layout template, required creative fields, and variants for an ad place.",
+  {
+    adPlaceId: z.string().describe("UUID of the ad place")
+  },
+  async ({ adPlaceId }) => {
+    try {
+      const data = await AdplatClient.getAdPlaceContentRequirements(adPlaceId);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+// ==========================================
+// 17. STOCK IMAGES & ASSET LIBRARY (7 TOOLS)
+// ==========================================
+server.tool(
+  "adplat_list_stock_images",
+  "Browse and search the central stock images library with category and keyword filters.",
+  {
+    search: z.string().optional().describe("Search keyword"),
+    category: z.string().optional().describe("Category tag"),
+    limit: z.number().optional().default(20).describe("Max items to fetch"),
+    offset: z.number().optional().default(0).describe("Pagination offset")
+  },
+  async (params) => {
+    try {
+      const data = await AdplatClient.listStockImages(params);
+      return jsonResponse(data);
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_create_stock_image",
+  "Add a new stock image asset to the central library with title and tags.",
+  {
+    title: z.string().describe("Image title"),
+    url: z.string().describe("CDN or S3 image URL"),
+    category: z.string().optional().describe("Category tag"),
+    tags: z.array(z.string()).optional().default([]).describe("Search tags")
+  },
+  async (args) => {
+    try {
+      const result = await AdplatClient.createStockImage(args);
+      return jsonResponse({
+        success: true,
+        message: "تصویر با موفقیت به کتابخانه اضافه شد.",
+        image: result.image || result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_update_stock_image",
+  "Update metadata, title, category, or tags of a stock image.",
+  {
+    imageId: z.string().describe("UUID of the stock image"),
+    title: z.string().optional().describe("Title"),
+    category: z.string().optional().describe("Category"),
+    tags: z.array(z.string()).optional().describe("Tags")
+  },
+  async ({ imageId, ...data }) => {
+    try {
+      const result = await AdplatClient.updateStockImage(imageId, data);
+      return jsonResponse({
+        success: true,
+        message: "مشخصات تصویر به‌روزرسانی شد.",
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_delete_stock_image",
+  "Delete a stock image asset from the central library.",
+  {
+    imageId: z.string().describe("UUID of the stock image to delete")
+  },
+  async ({ imageId }) => {
+    try {
+      const result = await AdplatClient.deleteStockImage(imageId);
+      return jsonResponse({
+        success: true,
+        message: "تصویر با موفقیت از کتابخانه حذف شد.",
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_bulk_create_stock_images",
+  "Batch import multiple stock image assets into the library at once.",
+  {
+    images: z.array(z.object({
+      title: z.string(),
+      url: z.string(),
+      category: z.string().optional(),
+      tags: z.array(z.string()).optional()
+    })).describe("Array of image objects to import")
+  },
+  async ({ images }) => {
+    try {
+      const result = await AdplatClient.bulkCreateStockImages(images);
+      return jsonResponse({
+        success: true,
+        message: `تعداد ${images.length} تصویر با موفقیت اضافه شدند.`,
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_describe_stock_image",
+  "Generate AI captions and visual descriptions for a stock image asset.",
+  {
+    imageId: z.string().describe("UUID of the stock image")
+  },
+  async ({ imageId }) => {
+    try {
+      const result = await AdplatClient.describeStockImage(imageId);
+      return jsonResponse({
+        success: true,
+        result
+      });
+    } catch (err) {
+      return errorResponse(err);
+    }
+  }
+);
+
+server.tool(
+  "adplat_get_stock_image_suggestions",
+  "Get AI-recommended stock images tailored to specific creative fields or campaign copy.",
+  {
+    contentFieldIds: z.array(z.string()).describe("Array of creative field UUIDs"),
+    campaignId: z.string().optional().describe("Associated campaign UUID"),
+    clusterId: z.string().optional().describe("Associated search cluster UUID"),
+    texts: z.array(z.string()).optional().describe("Sample ad copy texts to match against")
+  },
+  async (payload) => {
+    try {
+      const result = await AdplatClient.getStockImageSuggestions(payload);
+      return jsonResponse(result);
     } catch (err) {
       return errorResponse(err);
     }

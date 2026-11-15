@@ -46,7 +46,12 @@ async function runAudit() {
     { name: 'Industries List', fn: () => AdplatClient.listIndustries() },
     { name: 'Automations State', fn: () => AdplatClient.getAutomations() },
     { name: 'Automation Settings', fn: () => AdplatClient.getAutomationSettings() },
-    { name: 'Integration API Keys', fn: () => AdplatClient.listIntegrationApiKeys() }
+    { name: 'Integration API Keys', fn: () => AdplatClient.listIntegrationApiKeys() },
+    { name: 'Search Capacity Stats', fn: () => AdplatClient.getSearchCapacityStats(1403, 8) },
+    { name: 'Search Capacity Rentals', fn: () => AdplatClient.getSearchCapacityRentals(1403, 8) },
+    { name: 'Stock Images Library', fn: () => AdplatClient.listStockImages({ limit: 5 }) },
+    { name: 'Content Requirements', fn: () => AdplatClient.getAdPlaceContentRequirements('380c099b-f72c-4d2b-b19a-9e6f1c7cb194') },
+    { name: 'Campaign Analytics', fn: () => AdplatClient.getCampaignAnalytics('33bab953-115e-4423-8dc1-def0daf11776') }
   ];
 
   let passed = 0;

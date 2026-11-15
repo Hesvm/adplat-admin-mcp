@@ -595,4 +595,67 @@ export class AdplatClient {
     });
     return response.data;
   }
+
+  // --- Search Capacity & Detailed Day Breakdowns ---
+  static async getSearchCapacityStats(year, month) {
+    return this.request('GET', '/api/admin/statistics/search-capacity', null, { year, month });
+  }
+
+  static async getSearchCapacityRentals(year, month) {
+    return this.request('GET', '/api/admin/statistics/search-capacity/rentals', null, { year, month });
+  }
+
+  static async getSearchCapacityDayDetails(adPlaceId, date) {
+    return this.request('GET', '/api/admin/statistics/search-capacity/day-details', null, { adPlaceId, date });
+  }
+
+  static async getCapacityFulfillmentDayDetails(adPlaceId, date) {
+    return this.request('GET', '/api/admin/statistics/capacity-fulfillment/day-details', null, { adPlaceId, date });
+  }
+
+  // --- Campaign Telemetry & Search Bookings ---
+  static async getCampaignAnalytics(campaignId, params = {}) {
+    return this.request('GET', `/api/campaigns/${campaignId}/analytics`, null, params);
+  }
+
+  static async saveSearchBookings(campaignId, clusters) {
+    return this.request('PUT', `/api/campaigns/${campaignId}/search-bookings`, { clusters });
+  }
+
+  static async deleteCampaignBookingsBulk(campaignId, bookingIds) {
+    return this.request('DELETE', `/api/campaigns/${campaignId}/bookings/bulk`, { bookingIds });
+  }
+
+  static async getAdPlaceContentRequirements(adPlaceId) {
+    return this.request('GET', `/api/ad-places/${adPlaceId}/content-requirements`);
+  }
+
+  // --- Stock Images & Asset Library ---
+  static async listStockImages(params = {}) {
+    return this.request('GET', '/api/admin/stock-images', null, params);
+  }
+
+  static async createStockImage(data) {
+    return this.request('POST', '/api/admin/stock-images', data);
+  }
+
+  static async updateStockImage(imageId, data) {
+    return this.request('PATCH', `/api/admin/stock-images/${imageId}`, data);
+  }
+
+  static async deleteStockImage(imageId) {
+    return this.request('DELETE', `/api/admin/stock-images/${imageId}`);
+  }
+
+  static async bulkCreateStockImages(images) {
+    return this.request('POST', '/api/admin/stock-images/bulk', { images });
+  }
+
+  static async describeStockImage(imageId) {
+    return this.request('POST', `/api/admin/stock-images/${imageId}/describe`);
+  }
+
+  static async getStockImageSuggestions(payload) {
+    return this.request('POST', '/api/stock-images/suggestions', payload);
+  }
 }
